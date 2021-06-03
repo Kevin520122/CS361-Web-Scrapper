@@ -52,6 +52,7 @@ def write_summary_json(context):
     return summary
 
 def update_summary(summary, language):
+    print(summary)
     summary.update({"language": language})
     json_updated_summary = json.dumps(summary, indent=len(summary))
     with open("summary.json", "w") as f:

@@ -20,6 +20,7 @@ views = Blueprint('views', __name__)
 
 infobox={}
 images={}
+infoSummary = {}
 
 
 
@@ -103,15 +104,16 @@ def scrape_car():
 
 @views.route("/scrape", methods=["POST", "GET"])
 def scrape():
-    summary = {}
+    
     if request.method == 'POST':
         #Retrieve the language from the user's request
         language = request.form['language']
         #Store the language at the session temporarily
         session["language"] = language
+        info = session["summary"]
         #Update the summary json file by adding language
-        summary = func.update_summary(summary, language)
-    
+        summary = func.update_summary(info, language)
+        print(summary)
         return render_template("scrape.html", part = session["section"], summary=summary["context"], content=infobox, language=language)
 
     else:
@@ -125,11 +127,12 @@ def scrape():
         #Get all the content from Wikipedia
         search_result = wikipedia.page(wikipedia.search(content)[0])
         #Retrieve the scraping summary
-        summary = func.write_summary_json(search_result.summary)
+        infoSummary = func.write_summary_json(search_result.summary)
         #Retrieve the scraping images
         images = func.write_image_json(search_result.images)
+        session["summary"] = infoSummary
 
-        return render_template("scrape.html",   part=section, summary=summary["context"], images=images["links"])
+        return render_template("scrape.html",   part=section, summary=infoSummary["context"], images=images["links"])
 
 
 
@@ -154,10 +157,10 @@ def transform():
 def showImage():
     if request.method == "POST":
 
-        imgSrc = "sijun_service/pic/CONTOUR.jpg"
+        imgSrc = "website/new_img.jpg"
         carImage = PIL.Image.open(imgSrc)
         carImage.show()
-        carImage.save("modified.jpg")
+        
         return render_template("carImage.html")
 
     else:
